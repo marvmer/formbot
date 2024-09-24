@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анкета</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Анкета</h1>
+
+    <!-- Первый раздел -->
+    <h2>Раздел 1: Изменение цены</h2>
+
+    <form id="form">
+        <label for="min-price">Минимальная цена:</label>
+        <input type="number" id="min-price" name="min-price" required>
+
+        <label for="change-option">Опция изменения:</label>
+        <select id="change-option" name="change-option" required>
+            <option value="increase">Повышение</option>
+            <option value="decrease">Понижение</option>
+        </select>
+
+        <label for="change-type">Тип изменения:</label>
+        <select id="change-type" name="change-type" required>
+            <option value="absolute">Абсолютное</option>
+            <option value="relative">Относительное</option>
+        </select>
+
+        <!-- Второй раздел -->
+        <h2>Раздел 2: Артикулы</h2>
+
+        <label for="sku-id">ID Артикула (число):</label>
+        <input type="number" id="sku-id" name="sku-id" required>
+
+        <label for="sku-list">Список ID артикулов (через запятую):</label>
+        <textarea id="sku-list" name="sku-list" required></textarea>
+
+        <button type="button" onclick="submitForm()">Отправить</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
