@@ -11,14 +11,27 @@ function submitForm() {
         return;
     }
 
-    // Вывод результата
+    // Данные анкеты в JSON формате
+    const formData = {
+        min_price: minPrice,
+        change_option: changeOption,
+        change_type: changeType,
+        sku_id: skuId,
+        sku_list: skuList
+    };
+
+    // Передача данных через Telegram WebApp
+    if (window.Telegram.WebApp) {
+        Telegram.WebApp.sendData(JSON.stringify(formData)); // Отправляем данные в виде JSON
+        Telegram.WebApp.close(); // Закрываем WebApp после отправки
+    } else {
+        alert("Telegram WebApp не инициализирован!");
+    }
+
+    // Вывод результата в браузере (необязательно)
     const resultDiv = document.getElementById("result");
     resultDiv.innerHTML = `
         <h3>Результаты анкеты:</h3>
-        <p>Минимальная цена: ${minPrice}</p>
-        <p>Опция изменения: ${changeOption === "increase" ? "Повышение" : "Понижение"}</p>
-        <p>Тип изменения: ${changeType === "absolute" ? "Абсолютное" : "Относительное"}</p>
-        <p>ID Артикула: ${skuId}</p>
-        <p>Список ID артикулов: ${skuList.join(', ')}</p>
+        <pre>${JSON.stringify(formData, null, 2)}</pre>
     `;
 }
