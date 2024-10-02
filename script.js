@@ -58,7 +58,18 @@ document.getElementById('add-configuration').addEventListener('click', function(
     const inputs = newConfig.querySelectorAll('.input-row input');
     inputs.forEach(input => {
         input.style.display = 'block'; // Убедитесь, что поля ввода отображаются
+        input.addEventListener('focus', function() {
+            this.setAttribute('placeholder', ''); // Убираем текст заполнителя при фокусе
+        });
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.setAttribute('placeholder', 'Введите значение'); // Возвращаем текст заполнителя, если поле пустое
+            }
+        });
     });
+
+    // Устанавливаем фокус на первое поле ввода для удобства
+    inputs[0].focus();
 
     document.getElementById('configurations-list').appendChild(newConfig);
 });
