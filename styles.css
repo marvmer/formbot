@@ -26,10 +26,10 @@ body {
     display: flex;
     align-items: flex-start;
     width: 100%;
-    font-size: 30%;
+    font-size: 20px;
     line-height: 37px;
     color: #ffffff;
-    padding-top: 95px;
+    padding-top: 55px;
     z-index: 6;
     background-color: linear-gradient(184deg, #FFF -14.75%, #890F81 193.96%);
 }
