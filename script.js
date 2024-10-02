@@ -1,90 +1,79 @@
-window.onload = function() {
-    // Получаем параметры URL, чтобы загрузить initData
-    const urlParams = new URLSearchParams(window.location.search);
-    const initData = urlParams.get('initData');
+document.addEventListener('DOMContentLoaded', () => {
+    const addConfigButton = document.getElementById('add-configuration');
+    const sendConfigButton = document.getElementById('send-configuration');
+    const configList = document.getElementById('configurations-list');
+    const configTemplate = document.getElementById('config-template');
+    let configCounter = 1;
 
-    // Если initData присутствует, заполняем формы данными из последнего сообщения
-    if (initData) {
-        const configurations = JSON.parse(initData);
-        configurations.forEach((config, index) => {
-            const newConfig = document.getElementById('config-template').cloneNode(true);
-            newConfig.style.display = 'block';
-            newConfig.querySelector('.product-input').value = config.sku1;
-            newConfig.querySelector('.min-price-input').value = config.min_price;
-            newConfig.querySelector('.discount-input').value = config.value;
-            newConfig.querySelector('.url1-input').value = config.url1;
-            newConfig.querySelector('.url2-input').value = config.url2;
-            newConfig.querySelector('.url3-input').value = config.url3;
+    // Функция для добавления новой конфигурации
+    addConfigButton.addEventListener('click', () => {
+        const newConfig = configTemplate.cloneNode(true);
+        newConfig.style.display = 'block';
+        newConfig.id = '';
+        newConfig.querySelector('.config-number').textContent = `Конфигурация №${configCounter}`;
+        configCounter++;
 
-            // Устанавливаем выбранное действие
-            if (config.action) {
-                const actionButton = newConfig.querySelector(`[data-action="${config.action}"]`);
-                if (actionButton) {
-                    actionButton.style.backgroundColor = 'red';
-                }
-            }
-
-            document.getElementById('configurations-list').appendChild(newConfig);
+        // Обработчик удаления конфигурации
+        newConfig.querySelector('.delete-button').addEventListener('click', () => {
+            configList.removeChild(newConfig);
         });
-    }
-};
 
-// Функция для завершения режима редактирования при нажатии галочки
-function finishEditMode(button) {
-    const config = button.closest('.configuration');
-    config.classList.remove('editing');
-
-    // Прячем кнопки действия
-    config.querySelector('.edit-button').style.display = 'block';
-    button.style.display = 'none';
-}
-
-// Обработчик отправки всех конфигураций
-document.getElementById('send-configurations').addEventListener('click', function() {
-    // Запрашиваем подтверждение перед отправкой
-    const confirmSend = confirm('Вы уверены, что хотите отправить все конфигурации?');
-    if (!confirmSend) return;
-
-    const configurations = Array.from(document.querySelectorAll('.configuration')).map(config => {
-        const sku1 = config.querySelector('.product-input').value;
-        const min_price = config.querySelector('.min-price-input').value.replace(',', '.');
-        const value = config.querySelector('.discount-input').value;
-        const url1 = config.querySelector('.url1-input').value;
-        const url2 = config.querySelector('.url2-input').value;
-        const url3 = config.querySelector('.url3-input').value;
-
-        const selectedActions = Array.from(config.querySelectorAll('.action-button')).filter(button => button.style.backgroundColor === 'red');
-        const politic = selectedActions.length > 0 ? selectedActions[0].getAttribute('data-action') : null;
-
-        return {
-            sku1: sku1,
-            min_price: min_price,
-            value: value,
-            url1: url1,
-            url2: url2,
-            url3: url3,
-            action: politic
-        };
+        configList.appendChild(newConfig);
     });
 
-    // Преобразуем конфигурации в JSON
-    const formData = JSON.stringify(configurations);
+    // Функция для отправки данных конфигурации
+    sendConfigButton.addEventListener('click', () => {
+        const configurations = document.querySelectorAll('.configuration:not(#config-template)');
+        let configData = [];
 
-    // Отправляем данные в бота через Telegram Web App
-    if (window.Telegram.WebApp) {
-        Telegram.WebApp.sendData(formData);  // Отправляем данные боту
-        Telegram.WebApp.close();             // Закрываем веб-апп после отправки
-    }
-});
+        configurations.forEach((config, index) => {
+            const product = config.querySelector('.product-input').value;
+            const url1 = config.querySelector('.url1-input').value;
+            const url2 = config.querySelector('.url2-input').value;
+            const url3 = config.querySelector('.url3-input').value;
+            const minPrice = config.querySelector('.min-price-input').value;
+            const discount = config.querySelector('.discount-input').value;
+            const action = config.querySelector('.action-button.active')?.dataset.action || null;
 
-// Обработчик выбора кнопки действия (down, up, repeat)
-document.querySelectorAll('.action-button').forEach(button => {
-    button.addEventListener('click', function() {
-        // Убираем выделение с других кнопок
-        const config = button.closest('.configuration');
-        config.querySelectorAll('.action-button').forEach(btn => btn.style.backgroundColor = 'white');
+            configData.push({
+                sku1: product,
+                url1: url1,
+                url2: url2,
+                url3: url3,
+                min_price: parseFloat(minPrice),
+                value: parseFloat(discount),
+                action: action
+            });
+        });
 
-        // Выделяем выбранную кнопку
-        button.style.backgroundColor = 'red';
+        if (configData.length > 0) {
+            // Отправка данных в Telegram бота
+            fetch(`https://api.telegram.org/bot<ТВОЙ_ТГ_ТОКЕН>/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: '<ТВОЙ_CHAT_ID>',
+                    text: JSON.stringify(configData, null, 2) // отправка данных как JSON-строку
+                })
+            }).then(response => response.json())
+            .then(data => {
+                console.log('Успешная отправка:', data);
+            }).catch(error => {
+                console.error('Ошибка отправки:', error);
+            });
+        } else {
+            alert('Добавьте хотя бы одну конфигурацию перед отправкой!');
+        }
+    });
+
+    // Функция для выбора действия (Понижать, Повышать, Повторять)
+    document.addEventListener('click', (event) => {
+        if (event.target.classList.contains('action-button')) {
+            const buttons = event.target.parentNode.querySelectorAll('.action-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            event.target.classList.add('active');
+        }
     });
 });
