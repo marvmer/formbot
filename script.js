@@ -4,6 +4,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const configList = document.getElementById('configurations-list');
     const configTemplate = document.getElementById('config-template');
     let configCounter = 1;
+    const botToken = '<ТВОЙ_ТГ_ТОКЕН>'; // Вставь свой токен Telegram бота
+    const chatId = '<ТВОЙ_CHAT_ID>'; // Вставь свой Chat ID
+
+    // Функция для загрузки данных из последнего сообщения
+    const loadLastConfig = () => {
+        fetch(`https://api.telegram.org/bot${botToken}/getUpdates`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.result.length > 0) {
+                    const lastMessage = data.result[data.result.length - 1].message.text;
+                    let lastConfig = JSON.parse(lastMessage);
+
+                    // Создаём конфигурации на основе данных из последнего сообщения
+                    lastConfig.forEach((configData, index) => {
+                        const newConfig = configTemplate.cloneNode(true);
+                        newConfig.style.display = 'block';
+                        newConfig.id = '';
+                        newConfig.querySelector('.config-number').textContent = `Конфигурация №${configCounter}`;
+                        configCounter++;
+
+                        newConfig.querySelector('.product-input').value = configData.sku1 || '';
+                        newConfig.querySelector('.url1-input').value = configData.url1 || '';
+                        newConfig.querySelector('.url2-input').value = configData.url2 || '';
+                        newConfig.querySelector('.url3-input').value = configData.url3 || '';
+                        newConfig.querySelector('.min-price-input').value = configData.min_price || '';
+                        newConfig.querySelector('.discount-input').value = configData.value || '';
+
+                        // Устанавливаем активную кнопку действия
+                        const actionButtons = newConfig.querySelectorAll('.action-button');
+                        actionButtons.forEach(button => {
+                            if (button.dataset.action === configData.action) {
+                                button.classList.add('active');
+                            }
+                        });
+
+                        configList.appendChild(newConfig);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке данных:', error);
+            });
+    };
+
+    // Загрузка данных при старте
+    loadLastConfig();
 
     // Функция для добавления новой конфигурации
     addConfigButton.addEventListener('click', () => {
@@ -21,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         configList.appendChild(newConfig);
     });
 
-    // Функция для отправки данных конфигурации
+    // Функция для отправки данных конфигурации в Telegram
     sendConfigButton.addEventListener('click', () => {
         const configurations = document.querySelectorAll('.configuration:not(#config-template)');
         let configData = [];
@@ -48,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (configData.length > 0) {
             // Отправка данных в Telegram бота
-            fetch(`https://api.telegram.org/bot<ТВОЙ_ТГ_ТОКЕН>/sendMessage`, {
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    chat_id: '<ТВОЙ_CHAT_ID>',
-                    text: JSON.stringify(configData, null, 2) // отправка данных как JSON-строку
+                    chat_id: chatId,
+                    text: JSON.stringify(configData, null, 2) // Отправляем данные как JSON-строку
                 })
             }).then(response => response.json())
             .then(data => {
