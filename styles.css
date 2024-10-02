@@ -26,7 +26,7 @@ body {
     display: flex;
     align-items: flex-start;
     width: 100%;
-    font-size: 50px;
+    font-size: 20px;
     line-height: 37px;
     color: #ffffff;
     padding-top: 55px;
@@ -54,7 +54,7 @@ body {
 }
 /* Текст в блоке личного кабинета */
 .personal-account {
-    font-size: 24px;
+    font-size: 20px;
     color: #000000;
 }
 
@@ -62,12 +62,12 @@ body {
 .my-configurations {
     font-family: Oswald, sans-serif;
     color: #ffffff;
-    font-size: 21px;
+    font-size: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 40%;
-    max-width: 400px;
+    max-width: 40%;
     height: 54px;
     margin: 30px auto;
     cursor: pointer;
