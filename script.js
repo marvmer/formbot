@@ -54,6 +54,12 @@ document.getElementById('add-configuration').addEventListener('click', function(
         configDetails.style.display = configDetails.style.display === 'block' ? 'none' : 'block';
     });
 
+    // Показываем поля ввода
+    const inputs = newConfig.querySelectorAll('.input-row input');
+    inputs.forEach(input => {
+        input.style.display = 'block'; // Убедитесь, что поля ввода отображаются
+    });
+
     document.getElementById('configurations-list').appendChild(newConfig);
 });
 
