@@ -1,50 +1,75 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Конфигурации</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>REPRICER WB BOT</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div id="configurations-list">
-        <!-- Шаблон конфигурации -->
-        <div class="configuration" id="config-template" style="display: none;">
-            <div>
-                <label>Артикул:</label>
-                <input type="text" class="product-input" disabled>
-            </div>
-            <div>
-                <label>Минимальная цена:</label>
-                <input type="text" class="min-price-input" disabled>
-            </div>
-            <div>
-                <label>Скидка:</label>
-                <input type="text" class="discount-input" disabled>
-            </div>
-            <div>
-                <label>URL 1:</label>
-                <input type="text" class="url1-input" disabled>
-            </div>
-            <div>
-                <label>URL 2:</label>
-                <input type="text" class="url2-input" disabled>
-            </div>
-            <div>
-                <label>URL 3:</label>
-                <input type="text" class="url3-input" disabled>
-            </div>
-            <div>
-                <button class="action-button" data-action="down">Понижать</button>
-                <button class="action-button" data-action="up">Повышать</button>
-                <button class="action-button" data-action="repeat">Повторять</button>
-            </div>
-            <button class="edit-button">Редактировать</button>
-            <button class="save-button" style="display: none;">Галочка</button>
+    <div class="main-container">
+        <div class="header">
+            <span class="repricer-wb-bot">REPRICER WB BOT</span>
+            <button class="close-button" id="close-button">✖</button>
         </div>
-    </div>
 
-    <button id="send-configurations">Отправить конфигурации</button>
+        <div class="toolbar">
+            <span class="personal-account">Личный кабинет</span>
+        </div>
+
+        <button class="my-configurations" id="add-config">
+            <span>Мои конфигурации</span>
+        </button>
+
+        <div class="configurations-list" id="configurations-list">
+            <div class="configuration" id="config-template" style="display: none;">
+                <div class="config-title">
+                    <span class="config-number">Конфигурация №1</span>
+                </div>
+                <div class="config-details">
+                    <div class="input-row">
+                        <label>Ваш товар:</label>
+                        <input type="text" class="product-input" pattern=".*" title="Введите любой текст" />
+                    </div>
+                    <div class="input-row">
+                        <label>Url 1:</label>
+                        <input type="text" class="url1-input" pattern=".*" title="Введите любой текст" />
+                    </div>
+                    <div class="input-row">
+                        <label>Url 2:</label>
+                        <input type="text" class="url2-input" pattern=".*" title="Введите любой текст" />
+                    </div>
+                    <div class="input-row">
+                        <label>Url 3:</label>
+                        <input type="text" class="url3-input" pattern=".*" title="Введите любой текст" />
+                    </div>
+                    <div class="input-row">
+                        <label>Мин. цена:</label>
+                        <input type="number" class="min-price-input" min="0" title="Введите только числа" />
+                    </div>
+                    <div class="input-row">
+                        <label>Скидка:</label>
+                        <input type="number" class="discount-input" min="0" title="Введите только числа" />
+                    </div>
+                    <div class="actions-buttons">
+                        <label>Действие:</label>
+                        <button class="action-button down-button" data-action="down">Понижать</button>
+                        <button class="action-button up-button" data-action="up">Повышать</button>
+                        <button class="action-button repeat-button" data-action="repeat">Повторять</button>
+                    </div>
+                    <div class="buttons">
+                        <button class="save-button">&#10004;</button>
+                        <button class="delete-button">&#10006;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="add-configuration" id="add-configuration">+</button>
+        <button class="send-configuration" id="send-configuration">Отправить конфигурацию</button>
+
+    </div>
 
     <script src="script.js"></script>
 </body>
