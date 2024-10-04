@@ -20,7 +20,7 @@
         Telegram.WebApp.MainButton.show();
         Telegram.WebApp.MainButton.onClick(() => sendConfigs());
 
-        const configurations = [];
+        let configurations = [];
         let configCount = 0;
 
         document.getElementById('addConfigBtn').addEventListener('click', addConfig);
