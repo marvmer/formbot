@@ -10,6 +10,7 @@
     <h1>WB BOT</h1>
     <h2>Мои конфигурации</h2>
     <button id="addConfigBtn">Добавить конфигурацию</button>
+    <button id="sendConfigsBtn">Отправить конфигурации</button>
     <div id="configurations"></div>
 
     <script>
@@ -18,12 +19,44 @@
         document.body.style.color = themeParams.text_color || "#FFF";
         Telegram.WebApp.setBackgroundColor(themeParams.bottom_bar_color || "#000");
 
+        const CloudStorage = (function() {
+            var cloudStorage = {};
+
+            function invokeStorageMethod(method, params, callback) {
+                invokeCustomMethod(method, params, callback);
+            }
+
+            cloudStorage.setItem = function(key, value, callback) {
+                return invokeStorageMethod('saveStorageValue', {key: key, value: value}, callback);
+            };
+            cloudStorage.getItem = function(key, callback) {
+                return cloudStorage.getItems([key], callback ? function(err, res) {
+                    if (err) callback(err);
+                    else callback(null, res[key]);
+                } : null);
+            };
+            cloudStorage.getItems = function(keys, callback) {
+                return invokeStorageMethod('getStorageValues', {keys: keys}, callback);
+            };
+            cloudStorage.removeItem = function(key, callback) {
+                return cloudStorage.removeItems([key], callback);
+            };
+            cloudStorage.removeItems = function(keys, callback) {
+                return invokeStorageMethod('deleteStorageValues', {keys: keys}, callback);
+            };
+            cloudStorage.getKeys = function(callback) {
+                return invokeStorageMethod('getStorageKeys', {}, callback);
+            };
+            return cloudStorage;
+        })();
+
         const configurations = [];
         let configCount = 0;
 
         document.getElementById('addConfigBtn').addEventListener('click', () => {
             configCount++;
             const configDiv = document.createElement('div');
+            configDiv.id = `config_${configCount}`;
             configDiv.innerHTML = `
                 <input type="text" placeholder="Мой товар" id="product_${configCount}">
                 <input type="text" placeholder="URL1" id="url1_${configCount}">
@@ -36,28 +69,10 @@
                     <option value="Down">Down</option>
                     <option value="Repeat">Repeat</option>
                 </select>
-                <button onclick="saveConfig(${configCount})">Сохранить конфигурацию</button>
                 <button onclick="deleteConfig(${configCount})">Удалить конфигурацию</button>
             `;
             document.getElementById('configurations').appendChild(configDiv);
         });
-
-        function saveConfig(id) {
-            const keys = [
-                `product_${id}`,
-                `url1_${id}`,
-                `url2_${id}`,
-                `url3_${id}`,
-                `discount_${id}`,
-                `minPrice_${id}`,
-                `action_${id}`
-            ];
-
-            keys.forEach(key => {
-                const value = document.getElementById(key).value;
-                Telegram.WebApp.storage.setItem(key, value);
-            });
-        }
 
         function deleteConfig(id) {
             const keys = [
@@ -70,18 +85,41 @@
                 `action_${id}`
             ];
 
-            keys.forEach(key => {
-                Telegram.WebApp.storage.removeItem(key);
-            });
-
-            document.getElementById(`config_${id}`).remove();
+            if (confirm('Вы уверены, что хотите удалить эту конфигурацию?')) {
+                keys.forEach(key => {
+                    CloudStorage.removeItem(key);
+                });
+                document.getElementById(`config_${id}`).remove();
+            }
         }
 
+        document.getElementById('sendConfigsBtn').addEventListener('click', () => {
+            const allConfigs = [];
+            for (let i = 1; i <= configCount; i++) {
+                const config = {
+                    product: document.getElementById(`product_${i}`).value,
+                    url1: document.getElementById(`url1_${i}`).value,
+                    url2: document.getElementById(`url2_${i}`).value,
+                    url3: document.getElementById(`url3_${i}`).value,
+                    discount: document.getElementById(`discount_${i}`).value,
+                    minPrice: document.getElementById(`minPrice_${i}`).value,
+                    action: document.getElementById(`action_${i}`).value,
+                };
+                allConfigs.push(config);
+            }
+            // Здесь можно отправить allConfigs на сервер или в Telegram
+            console.log('Конфигурации отправлены:', allConfigs);
+        });
+
         function loadConfigs() {
-            Telegram.WebApp.storage.getKeys(keys => {
+            CloudStorage.getKeys(keys => {
                 keys.forEach(key => {
-                    const value = Telegram.WebApp.storage.getItem(key);
-                    // Здесь можно восстановить значения в интерфейсе
+                    CloudStorage.getItem(key, (err, value) => {
+                        if (!err) {
+                            // Здесь можно восстановить значения в интерфейсе
+                            console.log(`Ключ: ${key}, Значение: ${value}`);
+                        }
+                    });
                 });
             });
         }
