@@ -4,65 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WB BOT</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            text-align: center;
-            margin-top: 50px;
-        }
-        .config-block {
-            border: 1px solid;
-            padding: 10px;
-            margin: 10px 0;
-        }
-        .input-field {
-            width: 100%;
-            padding: 5px;
-            margin: 5px 0;
-        }
-        .button {
-            padding: 10px 20px;
-            margin-top: 20px;
-            cursor: pointer;
-            border: none;
-        }
-    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 id="title">WB BOT</h1>
-        <h2 id="subtitle">Мои конфигурации</h2>
-        <button class="button" id="addConfigBtn">Добавить конфигурацию</button>
-        <div id="configurations"></div>
-    </div>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <h1 id="title">WB BOT</h1>
+    <h2 id="subtitle">Мои конфигурации</h2>
+    <button id="addConfigBtn">Добавить конфигурацию</button>
+    <div id="configurations"></div>
     <script>
-        // Инициализация ThemeParams
         const themeParams = Telegram.WebApp.themeParams;
-
-        // Установка стилей с использованием ThemeParams
         document.body.style.backgroundColor = themeParams.bg_color || "#000";
         document.body.style.color = themeParams.text_color || "#FFF";
 
-        const buttonStyle = `
-            background-color: ${themeParams.button_color || "#FFF"};
-            color: ${themeParams.button_text_color || "#000"};
-        `;
-        
-        const destructiveButtonStyle = `
-            background-color: ${themeParams.destructive_button_color || "#FF6666"};
-            color: ${themeParams.destructive_button_text_color || "#FFF"};
-        `;
-
-        document.getElementById('addConfigBtn').style = buttonStyle;
-
-        // Настройка нижней панели
-        Telegram.WebApp.setBackgroundColor(themeParams.bottom_bar_color || "#000");
-
-        // Инициализация MainButton
         Telegram.WebApp.MainButton.setText("Отправить конфигурации");
         Telegram.WebApp.MainButton.show();
         Telegram.WebApp.MainButton.onClick(() => sendConfigs());
@@ -70,28 +23,29 @@
         const configurations = [];
         let configCount = 0;
 
-        document.getElementById('addConfigBtn').addEventListener('click', () => {
+        document.getElementById('addConfigBtn').addEventListener('click', addConfig);
+
+        function addConfig() {
             configCount++;
             const configDiv = document.createElement('div');
-            configDiv.className = 'config-block';
             configDiv.id = `config_${configCount}`;
             configDiv.innerHTML = `
-                <input class="input-field" type="text" placeholder="Мой товар" id="product_${configCount}">
-                <input class="input-field" type="text" placeholder="URL1" id="url1_${configCount}">
-                <input class="input-field" type="text" placeholder="URL2" id="url2_${configCount}">
-                <input class="input-field" type="text" placeholder="URL3" id="url3_${configCount}">
-                <input class="input-field" type="text" placeholder="Скидка" id="discount_${configCount}">
-                <input class="input-field" type="text" placeholder="Минимальная цена" id="minPrice_${configCount}">
-                <select class="input-field" id="action_${configCount}">
+                <input type="text" placeholder="Мой товар" id="product_${configCount}">
+                <input type="text" placeholder="URL1" id="url1_${configCount}">
+                <input type="text" placeholder="URL2" id="url2_${configCount}">
+                <input type="text" placeholder="URL3" id="url3_${configCount}">
+                <input type="text" placeholder="Скидка" id="discount_${configCount}">
+                <input type="text" placeholder="Минимальная цена" id="minPrice_${configCount}">
+                <select id="action_${configCount}">
                     <option value="Up">Up</option>
                     <option value="Down">Down</option>
                     <option value="Repeat">Repeat</option>
                 </select>
-                <button class="button" style="${buttonStyle}" onclick="saveConfig(${configCount})">Сохранить конфигурацию</button>
-                <button class="button" style="${destructiveButtonStyle}" onclick="deleteConfig(${configCount})">Удалить конфигурацию</button>
+                <button onclick="saveConfig(${configCount})">Сохранить конфигурацию</button>
+                <button onclick="deleteConfig(${configCount})">Удалить конфигурацию</button>
             `;
             document.getElementById('configurations').appendChild(configDiv);
-        });
+        }
 
         function saveConfig(id) {
             const product = document.getElementById(`product_${id}`).value;
@@ -102,34 +56,56 @@
             const minPrice = document.getElementById(`minPrice_${id}`).value;
             const action = document.getElementById(`action_${id}`).value;
 
-            configurations[id] = { product, url1, url2, url3, discount, minPrice, action };
+            const config = { product, url1, url2, url3, discount, minPrice, action };
+            configurations[id] = config;
 
-            // Сохранение в облачное хранилище
-            Telegram.WebApp.storage.setItem(`config_${id}`, JSON.stringify(configurations[id]));
+            Telegram.WebApp.storage.setItem(`config_${id}`, JSON.stringify(config));
         }
 
         function deleteConfig(id) {
             document.getElementById(`config_${id}`).remove();
             delete configurations[id];
-
-            // Удаление из облачного хранилища
             Telegram.WebApp.storage.removeItem(`config_${id}`);
         }
 
         function sendConfigs() {
-            // Отправляем данные боту
             Telegram.WebApp.sendData(JSON.stringify(configurations));
         }
 
-        // Загрузка конфигураций из облачного хранилища при запуске
         window.onload = () => {
-            for (let i = 0; i < configCount; i++) {
-                const savedConfig = Telegram.WebApp.storage.getItem(`config_${i}`);
-                if (savedConfig) {
-                    configurations[i] = JSON.parse(savedConfig);
-                }
-            }
+            Telegram.WebApp.storage.getKeys((keys) => {
+                keys.forEach(key => {
+                    Telegram.WebApp.storage.getItem(key, (savedConfig) => {
+                        if (savedConfig) {
+                            const config = JSON.parse(savedConfig);
+                            const id = key.split('_')[1];
+                            displayConfig(config, id);
+                        }
+                    });
+                });
+            });
         };
+
+        function displayConfig(config, id) {
+            const configDiv = document.createElement('div');
+            configDiv.id = `config_${id}`;
+            configDiv.innerHTML = `
+                <input type="text" placeholder="Мой товар" value="${config.product}" id="product_${id}">
+                <input type="text" placeholder="URL1" value="${config.url1}" id="url1_${id}">
+                <input type="text" placeholder="URL2" value="${config.url2}" id="url2_${id}">
+                <input type="text" placeholder="URL3" value="${config.url3}" id="url3_${id}">
+                <input type="text" placeholder="Скидка" value="${config.discount}" id="discount_${id}">
+                <input type="text" placeholder="Минимальная цена" value="${config.minPrice}" id="minPrice_${id}">
+                <select id="action_${id}">
+                    <option value="Up" ${config.action === "Up" ? "selected" : ""}>Up</option>
+                    <option value="Down" ${config.action === "Down" ? "selected" : ""}>Down</option>
+                    <option value="Repeat" ${config.action === "Repeat" ? "selected" : ""}>Repeat</option>
+                </select>
+                <button onclick="saveConfig(${id})">Сохранить конфигурацию</button>
+                <button onclick="deleteConfig(${id})">Удалить конфигурацию</button>
+            `;
+            document.getElementById('configurations').appendChild(configDiv);
+        }
     </script>
 </body>
 </html>
