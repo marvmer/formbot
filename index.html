@@ -1,76 +1,135 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>REPRICER WB BOT</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" />
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WB BOT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .config-block {
+            border: 1px solid;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .input-field {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0;
+        }
+        .button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="header">
-            <span class="repricer-wb-bot">REPRICER WB BOT</span>
-            <button class="close-button" id="close-button">✖</button>
-        </div>
-
-        <div class="toolbar">
-            <span class="personal-account">Личный кабинет</span>
-        </div>
-
-        <button class="my-configurations" id="add-config">
-            <span>Мои конфигурации</span>
-        </button>
-
-        <div class="configurations-list" id="configurations-list">
-            <div class="configuration" id="config-template" style="display: none;">
-                <div class="config-title">
-                    <span class="config-number">Конфигурация №1</span>
-                </div>
-                <div class="config-details">
-                    <div class="input-row">
-                        <label>Ваш товар:</label>
-                        <input type="text" class="product-input" pattern=".*" title="Введите любой текст" />
-                    </div>
-                    <div class="input-row">
-                        <label>Url 1:</label>
-                        <input type="text" class="url1-input" pattern=".*" title="Введите любой текст" />
-                    </div>
-                    <div class="input-row">
-                        <label>Url 2:</label>
-                        <input type="text" class="url2-input" pattern=".*" title="Введите любой текст" />
-                    </div>
-                    <div class="input-row">
-                        <label>Url 3:</label>
-                        <input type="text" class="url3-input" pattern=".*" title="Введите любой текст" />
-                    </div>
-                    <div class="input-row">
-                        <label>Мин. цена:</label>
-                        <input type="number" class="min-price-input" min="0" title="Введите только числа" />
-                    </div>
-                    <div class="input-row">
-                        <label>Скидка:</label>
-                        <input type="number" class="discount-input" min="0" title="Введите только числа" />
-                    </div>
-                    <div class="actions-buttons">
-                        <label>Действие:</label>
-                        <button class="action-button down-button" data-action="down">Понижать</button>
-                        <button class="action-button up-button" data-action="up">Повышать</button>
-                        <button class="action-button repeat-button" data-action="repeat">Повторять</button>
-                    </div>
-                    <div class="buttons">
-                        <button class="save-button">&#10004;</button>
-                        <button class="delete-button">&#10006;</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <button class="add-configuration" id="add-configuration">+</button>
-        <button class="send-configuration" id="send-configuration">Отправить конфигурацию</button>
-
+    <div class="container">
+        <h1 id="title">WB BOT</h1>
+        <h2 id="subtitle">Мои конфигурации</h2>
+        <button class="button" id="addConfigBtn">Добавить конфигурацию</button>
+        <div id="configurations"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Инициализация ThemeParams
+        const themeParams = Telegram.WebApp.themeParams;
+
+        // Установка стилей с использованием ThemeParams
+        document.body.style.backgroundColor = themeParams.bg_color || "#000";
+        document.body.style.color = themeParams.text_color || "#FFF";
+
+        const buttonStyle = `
+            background-color: ${themeParams.button_color || "#FFF"};
+            color: ${themeParams.button_text_color || "#000"};
+        `;
+        
+        const destructiveButtonStyle = `
+            background-color: ${themeParams.destructive_button_color || "#FF6666"};
+            color: ${themeParams.destructive_button_text_color || "#FFF"};
+        `;
+
+        document.getElementById('addConfigBtn').style = buttonStyle;
+
+        // Настройка нижней панели
+        Telegram.WebApp.setBackgroundColor(themeParams.bottom_bar_color || "#000");
+
+        // Инициализация MainButton
+        Telegram.WebApp.MainButton.setText("Отправить конфигурации");
+        Telegram.WebApp.MainButton.show();
+        Telegram.WebApp.MainButton.onClick(() => sendConfigs());
+
+        const configurations = [];
+        let configCount = 0;
+
+        document.getElementById('addConfigBtn').addEventListener('click', () => {
+            configCount++;
+            const configDiv = document.createElement('div');
+            configDiv.className = 'config-block';
+            configDiv.id = `config_${configCount}`;
+            configDiv.innerHTML = `
+                <input class="input-field" type="text" placeholder="Мой товар" id="product_${configCount}">
+                <input class="input-field" type="text" placeholder="URL1" id="url1_${configCount}">
+                <input class="input-field" type="text" placeholder="URL2" id="url2_${configCount}">
+                <input class="input-field" type="text" placeholder="URL3" id="url3_${configCount}">
+                <input class="input-field" type="text" placeholder="Скидка" id="discount_${configCount}">
+                <input class="input-field" type="text" placeholder="Минимальная цена" id="minPrice_${configCount}">
+                <select class="input-field" id="action_${configCount}">
+                    <option value="Up">Up</option>
+                    <option value="Down">Down</option>
+                    <option value="Repeat">Repeat</option>
+                </select>
+                <button class="button" style="${buttonStyle}" onclick="saveConfig(${configCount})">Сохранить конфигурацию</button>
+                <button class="button" style="${destructiveButtonStyle}" onclick="deleteConfig(${configCount})">Удалить конфигурацию</button>
+            `;
+            document.getElementById('configurations').appendChild(configDiv);
+        });
+
+        function saveConfig(id) {
+            const product = document.getElementById(`product_${id}`).value;
+            const url1 = document.getElementById(`url1_${id}`).value;
+            const url2 = document.getElementById(`url2_${id}`).value;
+            const url3 = document.getElementById(`url3_${id}`).value;
+            const discount = document.getElementById(`discount_${id}`).value;
+            const minPrice = document.getElementById(`minPrice_${id}`).value;
+            const action = document.getElementById(`action_${id}`).value;
+
+            configurations[id] = { product, url1, url2, url3, discount, minPrice, action };
+
+            // Сохранение в облачное хранилище
+            Telegram.WebApp.storage.setItem(`config_${id}`, JSON.stringify(configurations[id]));
+        }
+
+        function deleteConfig(id) {
+            document.getElementById(`config_${id}`).remove();
+            delete configurations[id];
+
+            // Удаление из облачного хранилища
+            Telegram.WebApp.storage.removeItem(`config_${id}`);
+        }
+
+        function sendConfigs() {
+            // Отправляем данные боту
+            Telegram.WebApp.sendData(JSON.stringify(configurations));
+        }
+
+        // Загрузка конфигураций из облачного хранилища при запуске
+        window.onload = () => {
+            for (let i = 0; i < configCount; i++) {
+                const savedConfig = Telegram.WebApp.storage.getItem(`config_${i}`);
+                if (savedConfig) {
+                    configurations[i] = JSON.parse(savedConfig);
+                }
+            }
+        };
+    </script>
 </body>
 </html>
