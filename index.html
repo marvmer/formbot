@@ -3,128 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WB BOT</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" />
+    <title>Telegram WebApp Анкета</title>
+    <style>
+        body {
+            font-family: system,-apple-system,BlinkMacSystemFont,Segoe UI,Segoe WP,Roboto,Ubuntu,Oxygen,Cantarell,Fira Sans,Helvetica Neue,Helvetica,Lucida Grande,Droid Sans,Tahoma,"Microsoft Sans Serif",sans-serif;
+            background: black;
+            outline: none;
+            border: none;
+            box-sizing: border-box;
+
+        }
+
+/*Контейнер с заголовком*/
+
+        .header {
+            width: 100%;
+            color: white;
+            display: flex;
+            align-items: flex-start;
+            height: 20vh;
+            justify-content: center;
+            border: none;
+            background: linear-gradient(63deg, rgba(255,27,195,1) 0%, rgba(182,66,199,1) 50%, rgba(179,39,255,1) 100%);
+            position: relative; /* Начальное положение блока */
+            z-index: 1; /* Устанавливаем уровень наложения */
+
+        }
+
+
+        .repricer-wb-bot {
+            font-size: 5vh;
+            padding-top: 3vh;
+             }
+
+
+/*Контейнер с названием МОИ КОНФИГУРАЦИИ*/
+
+        .myconfig-container {
+            display: flex;
+            font-size: 2.5vh;
+            color: white;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            height: 7vh;
+            background: #1E1E1E;
+            position: relative; /* Этот блок будет "наезжать" на предыдущий */
+            top: -5vh;
+            left: 0; /* Смещение слева */
+            z-index: 2; /* Более высокий уровень наложения */
+            border-radius: 14px; /* Скругление только левого верхнего угла */
+        }
+
+
+/*Основной контейнер, где конфигурации и кнопки добавить и отправить*/
+
+        .container {
+            align-items: center;
+            justify-content: center;
+            max-width: 80vh;
+            margin: 0vh auto;
+            border: none;
+            position: relative;
+            border-radius: 3vh;
+
+        }
+
+        .config-section {
+            border-radius: 3vh;
+            padding: 2vh;
+            background-color: #b327ff;
+            margin-bottom: 3vh;
+            position: relative;
+            transition: background-color 0.3s; /* Плавный переход цвета фона */
+        }
+
+/*Контейнер названия конфигурации*/
+        .config-header, .tracked-links-header {
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: #1E1E1E;
+            height: 5vh;
+            padding: 1.3vh;
+            border-radius: 3vh;
+        }
+
+        .tracked-links-header {
+            background-color: #8127B2;
+            width: 40vh;
+            margin: 0 auto;
+        }
+
+        .config-content, .tracked-links-content {
+
+            display: none;
+            padding-top: 1.5vh;
+
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2vh;
+        }
+
+        label {
+            color: white;
+            width: 20vh;
+            display: block;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            flex: 15;
+            width: 40%;
+            padding: 0.7vh;
+            box-sizing: border-box;
+        }
+
+        .tracked-links-list {
+            margin-bottom: 2vh;
+            width: 100%;
+        }
+
+
+/*Контейнер кнопок*/
+        .button-container {
+
+            background-color: black;
+            margin-top: 1vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            display: flex;
+            margin: 0 auto;
+            font-size: 100%;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5vh 2vh;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 3vh;
+        }
+
+        button.add-link {
+            display: flex;
+            margin: 1vh auto;
+            background-color: #CC73FC;
+            border-radius: 3vh;
+        }
+
+        button.add-config {
+
+            display: flex;
+            margin: 2vh auto;
+            background-color: #CD66BE;
+            border-radius: 3vh;
+        }
+
+        button.remove-config, button.remove-link {
+            font-size: 3vh;
+            color: #CC73FC;
+            position: absolute;
+            display: flex;
+            width: auto;
+            right: 5vh;
+            background: none;
+            background-color: none;
+            border-radius: 100%;
+        }
+
+        button.remove-link {
+            color: black;
+        }
+
+
+        .config-name {
+
+            display: flex;
+            font-weight: italic;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>WB BOT</h1>
-    <h2>Мои конфигурации</h2>
-    <button id="addConfigBtn">Добавить конфигурацию</button>
-    <button id="sendConfigsBtn">Отправить конфигурации</button>
-    <div id="configurations"></div>
 
+<div class="header">
+            <span class="repricer-wb-bot">REPRICER WB BOT</span>
+        </div>
+
+<div class="myconfig-container">
+
+            <span class="my-config-name">Мои конфигурации</span>
+        </div>
+
+    <div class="container">
+        <div id="config-container"></div>
+        <div class="button-container">
+        <button class="add-config" onclick="addConfig()">Добавить конфигурацию</button>
+        <button onclick="sendDataToBot()">Сохранить и отправить данные боту</button>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        const themeParams = Telegram.WebApp.themeParams;
-        document.body.style.backgroundColor = themeParams.bg_color || "#000";
-        document.body.style.color = themeParams.text_color || "#FFF";
-        Telegram.WebApp.setBackgroundColor(themeParams.bottom_bar_color || "#000");
 
-        const CloudStorage = (function() {
-            var cloudStorage = {};
+        function addConfig(configData = {}, configName = '') {
+            const container = document.getElementById('config-container');
+            const configId = configName || `config${Date.now()}`;
 
-            function invokeStorageMethod(method, params, callback) {
-                invokeCustomMethod(method, params, callback);
-            }
-
-            cloudStorage.setItem = function(key, value, callback) {
-                return invokeStorageMethod('saveStorageValue', {key: key, value: value}, callback);
-            };
-            cloudStorage.getItem = function(key, callback) {
-                return cloudStorage.getItems([key], callback ? function(err, res) {
-                    if (err) callback(err);
-                    else callback(null, res[key]);
-                } : null);
-            };
-            cloudStorage.getItems = function(keys, callback) {
-                return invokeStorageMethod('getStorageValues', {keys: keys}, callback);
-            };
-            cloudStorage.removeItem = function(key, callback) {
-                return cloudStorage.removeItems([key], callback);
-            };
-            cloudStorage.removeItems = function(keys, callback) {
-                return invokeStorageMethod('deleteStorageValues', {keys: keys}, callback);
-            };
-            cloudStorage.getKeys = function(callback) {
-                return invokeStorageMethod('getStorageKeys', {}, callback);
-            };
-            return cloudStorage;
-        })();
-
-        const configurations = [];
-        let configCount = 0;
-
-        document.getElementById('addConfigBtn').addEventListener('click', () => {
-            configCount++;
             const configDiv = document.createElement('div');
-            configDiv.id = `config_${configCount}`;
+            configDiv.className = 'config-section';
+            configDiv.id = configId;
+
             configDiv.innerHTML = `
-                <input type="text" placeholder="Мой товар" id="product_${configCount}">
-                <input type="text" placeholder="URL1" id="url1_${configCount}">
-                <input type="text" placeholder="URL2" id="url2_${configCount}">
-                <input type="text" placeholder="URL3" id="url3_${configCount}">
-                <input type="text" placeholder="Скидка" id="discount_${configCount}">
-                <input type="text" placeholder="Минимальная цена" id="minPrice_${configCount}">
-                <select id="action_${configCount}">
-                    <option value="Up">Up</option>
-                    <option value="Down">Down</option>
-                    <option value="Repeat">Repeat</option>
-                </select>
-                <button onclick="deleteConfig(${configCount})">Удалить конфигурацию</button>
+                <div class="config-header" onclick="toggleConfig('${configId}')">
+                    <span class="config-name">${configName || 'Новая конфигурация'}</span>
+
+                    <button class="remove-config" onclick="removeConfig(event, '${configId}')">✖</button>
+                </div>
+                <div class="config-content">
+                    <div class="form-group">
+                        <label for="${configId}-name">Название конфигурации</label>
+                        <input type="text" id="${configId}-name" value="${configName || ''}" onchange="updateConfigName('${configId}')">
+                    </div>
+                    <div class="form-group">
+                        <label for="${configId}-min-price">Минимальная цена</label>
+                        <input type="number" step="0.01" id="${configId}-min-price" value="${configData.min_price || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="${configId}-politic">Управление ценой</label>
+                        <select id="${configId}-politic">
+                            <option value="up" ${configData.politic === 'up' ? 'selected' : ''}>Повышение</option>
+                            <option value="down" ${configData.politic === 'down' ? 'selected' : ''}>Понижение</option>
+                            <option value="repeat" ${configData.politic === 'repeat' ? 'selected' : ''}>Без изменений</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="${configId}-delta-value">Значение изменения</label>
+                        <input type="number" step="0.01" id="${configId}-delta-value" value="${configData.delta?.value || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="${configId}-delta-type">Тип значения</label>
+                        <select id="${configId}-delta-type">
+                            <option value="absolute" ${configData.delta?.type === 'absolute' ? 'selected' : ''}>Рубли</option>
+                            <option value="relative" ${configData.delta?.type === 'relative' ? 'selected' : ''}>Проценты, %</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="${configId}-my-link">Ссылка на вашу карточку</label>
+                        <input type="text" id="${configId}-my-link" value="${configData.my_link || ''}" onchange="validateUrl(this)">
+                    </div>
+                    <div class="tracked-links-section">
+                        <div class="tracked-links-header" onclick="toggleTrackedLinks('${configId}')">
+                            <span>Отслеживаемые ссылки</span>
+                        </div>
+                        <div class="tracked-links-content">
+                            <div id="${configId}-tracked-links-list" class="tracked-links-list">
+                                ${(configData['tracked links'] || []).map((link, index) => `
+                                    <div class="form-group" id="${configId}-link-${index}">
+                                        <input type="text" value="${link}" onchange="validateUrl(this)">
+                                        <button class="remove-link" onclick="removeLink(event, '${configId}-link-${index}')">✖</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="add-link" onclick="addLink('${configId}')">Добавить ссылку</button>
+                        </div>
+                    </div>
+                </div>
             `;
-            document.getElementById('configurations').appendChild(configDiv);
-        });
 
-        function deleteConfig(id) {
-            const keys = [
-                `product_${id}`,
-                `url1_${id}`,
-                `url2_${id}`,
-                `url3_${id}`,
-                `discount_${id}`,
-                `minPrice_${id}`,
-                `action_${id}`
-            ];
+            container.appendChild(configDiv);
+        }
 
-            if (confirm('Вы уверены, что хотите удалить эту конфигурацию?')) {
-                keys.forEach(key => {
-                    CloudStorage.removeItem(key);
-                });
-                document.getElementById(`config_${id}`).remove();
+        function removeConfig(event, configId) {
+            event.stopPropagation();
+            const configDiv = document.getElementById(configId);
+            configDiv.parentNode.removeChild(configDiv);
+        }
+
+        function toggleConfig(configId) {
+            const configContent = document.getElementById(configId).querySelector('.config-content');
+            configContent.style.display = configContent.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleTrackedLinks(configId) {
+            const trackedLinksContent = document.getElementById(configId).querySelector('.tracked-links-content');
+            trackedLinksContent.style.display = trackedLinksContent.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateConfigName(configId) {
+            const configNameInput = document.getElementById(`${configId}-name`);
+            const configHeader = document.getElementById(configId).querySelector('.config-name');
+            configHeader.textContent = configNameInput.value || 'Новая конфигурация';
+        }
+
+        function addLink(configId) {
+            const trackedLinksList = document.getElementById(`${configId}-tracked-links-list`);
+            const linkIndex = Date.now();
+
+            const linkDiv = document.createElement('div');
+            linkDiv.className = 'form-group';
+            linkDiv.id = `${configId}-link-${linkIndex}`;
+
+            linkDiv.innerHTML = `
+                <input type="text" placeholder="Введите URL" onchange="validateUrl(this)">
+                <button class="remove-link" onclick="removeLink(event, '${configId}-link-${linkIndex}')">✖</button>
+            `;
+
+            trackedLinksList.appendChild(linkDiv);
+        }
+
+        function removeLink(event, linkId) {
+            event.stopPropagation();
+            const linkDiv = document.getElementById(linkId);
+            linkDiv.parentNode.removeChild(linkDiv);
+        }
+
+        function validateUrl(input) {
+            const urlPattern = /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+)([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/;
+            if (!urlPattern.test(input.value)) {
+                alert('Пожалуйста, введите правильный URL');
+                input.style.borderColor = 'red';
+            } else {
+                input.style.borderColor = '';
             }
         }
 
-        document.getElementById('sendConfigsBtn').addEventListener('click', () => {
-            const allConfigs = [];
-            for (let i = 1; i <= configCount; i++) {
-                const config = {
-                    product: document.getElementById(`product_${i}`).value,
-                    url1: document.getElementById(`url1_${i}`).value,
-                    url2: document.getElementById(`url2_${i}`).value,
-                    url3: document.getElementById(`url3_${i}`).value,
-                    discount: document.getElementById(`discount_${i}`).value,
-                    minPrice: document.getElementById(`minPrice_${i}`).value,
-                    action: document.getElementById(`action_${i}`).value,
+        function getDataFromForm() {
+            const configs = {};
+            const configSections = document.querySelectorAll('.config-section');
+
+            configSections.forEach(section => {
+                const configId = section.id;
+                const configName = document.getElementById(`${configId}-name`).value || ''
+                configs[configName] = {
+                    name: document.getElementById(`${configId}-name`).value || '',
+                    min_price: parseFloat(document.getElementById(`${configId}-min-price`).value) || 0,
+                    politic: document.getElementById(`${configId}-politic`).value,
+                    delta: {
+                        value: parseFloat(document.getElementById(`${configId}-delta-value`).value) || 0,
+                        type: document.getElementById(`${configId}-delta-type`).value,
+                    },
+                    my_link: document.getElementById(`${configId}-my-link`).value,
+                    'tracked links': Array.from(document.getElementById(`${configId}-tracked-links-list`).children).map(div => div.querySelector('input').value.trim())
                 };
-                allConfigs.push(config);
-            }
-            // Здесь можно отправить allConfigs на сервер или в Telegram
-            console.log('Конфигурации отправлены:', allConfigs);
-        });
-
-        function loadConfigs() {
-            CloudStorage.getKeys(keys => {
-                keys.forEach(key => {
-                    CloudStorage.getItem(key, (err, value) => {
-                        if (!err) {
-                            // Здесь можно восстановить значения в интерфейсе
-                            console.log(`Ключ: ${key}, Значение: ${value}`);
-                        }
-                    });
-                });
             });
+
+            return configs;
         }
 
-        window.onload = loadConfigs;
+        function sendDataToBot() {
+            const data = getDataFromForm();
+            Telegram.WebApp.sendData(JSON.stringify(data));
+        }
+
+        async function getUserData(userId, accessToken) {
+            const apiUrl = "https://158.160.76.190:8080/";
+            // alert(apiUrl);
+            try {
+                const response = await fetch(apiUrl + 'get_user_configs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        token: accessToken
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+
+                return await response.json()
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        window.addEventListener('load', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            const token = urlParams.get('token');
+            // alert(userId);
+            // alert(token);
+            const jsonData = await getUserData(userId, token);
+            // alert(JSON.stringify(jsonData))
+            Object.keys(jsonData).forEach(config => addConfig(jsonData[config], config));
+
+        });
+
     </script>
 </body>
 </html>
